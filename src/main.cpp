@@ -1,15 +1,10 @@
-#include <ESP8266WiFi.h>
-#include <ESPAsyncTCP.h>
-#include <ESPAsyncWebServer.h>
-#include <LittleFS.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <SPI.h>
 #include <Wire.h>
 #include <ArduinoJson.h>
 #include <LittleFS.h>
-
-AsyncWebServer server(80);
+#include <ESP8266WiFi.h>
 
 int dPins[] = {16,15,10,0,2,14,12,13};
 int WEPin = 10;
@@ -124,23 +119,18 @@ void playNote(uint8_t channel, notes note, uint8 octave , uint16_t dur) {
  
 void setup() {
     display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-    display.clearDisplay();
-    display.setTextSize(1);
-    display.println("Chiptune Synthesizer Test Version by RedElectricity");
-    display.display();
 
     Serial.begin(115200);
-    display.println("Chiptune Synthesizer Booting...");
-    display.display();
+    Serial.println("Chiptune Synthesizer Test Version by RedElectricity");
+    Serial.println("Chiptune Synthesizer Booting...");
+
 
     // Boot File System
     if (LittleFS.begin()) {
-        display.println("File System Boot successful...");
-        display.display();
+        Serial.println("File System Boot successful...");
     }
     else {
-        display.println("File System Boot fail...");
-        display.display();
+        Serial.println("File System Boot fail...");
 
         ESP.restart();
     }
@@ -148,8 +138,7 @@ void setup() {
 
     // Read Config
     if (LittleFS.exists("config.json")) {
-        display.printf("Found config file...");
-        display.display();
+        Serial.printf("Found config file...");
 
         File configFile = LittleFS.open("config.json","r");
         String configString;
@@ -160,7 +149,7 @@ void setup() {
         deserializeJson(config,configString);
     }
     else {
-        display.printf("Not found config file, init one...");
+        Serial.printf("Not found config file, init one...");
         display.display();
         String originConfig = "{\"wifi\":{\"type\":0,\"ssid\":\"ChiptuneSynthesizer\",\"pass\":\"chiptune\"},\"mode\":0}";
         File configFile = LittleFS.open("config.json","w");
@@ -175,35 +164,30 @@ void setup() {
     if ((int)config["wifi"]["type"] == 0) {
         boolean startAP = WiFi.softAP((String)config["wifi"]["ssid"],(String)config["wifi"]["pass"]);
         if (startAP == true) {
-            display.println("Wifi AP boot successful...");
-            display.display();
+            Serial.println("Wifi AP boot successful...");
         } 
         else {
-            display.println("Wifi AP boot fail...");
-            display.display();
+            Serial.println("Wifi AP boot fail...");
             ESP.restart();
         }
     }
     else if ((int)config["wifi"]["type"] == 1) {
         WiFi.begin((String)config["wifi"]["ssid"],(String)config["wifi"]["pass"]);
         if (WiFi.status() != WL_CONNECTED) {
-            display.println("Wifi connect fail, try to boot AP...");
-            display.display();
+            Serial.println("Wifi connect fail, try to boot AP...");
 
             boolean startAP = WiFi.softAP((String)config["wifi"]["ssid"],(String)config["wifi"]["pass"]);
             if (startAP == true) {
-                display.println("Wifi AP boot successful...");
-                display.display();
+                Serial.println("Wifi AP boot successful...");
             } 
             else {
-                display.println("Wifi AP boot fail...");
-                display.display();
+                Serial.println("Wifi AP boot fail...");
                 ESP.restart();
             }
         }
     }
     
-    display.println("Init Pins...");
+    Serial.println("Init Pins...");
 
     for (uint8_t i = 0; i < 8; i++) {
         pinMode(dPins[i], OUTPUT);
@@ -215,13 +199,14 @@ void setup() {
 
     muteAll();
 
+    setVolume(1,15);
     playNote(1, C, 5, 5000);
 
-    display.println("Boot Successful, Ready to play!");
-    display.display();
+    Serial.println("Boot Successful, Ready to play!");
 
 }
 
 void loop() {
+    String commend = Serial.readString();
     
 }
