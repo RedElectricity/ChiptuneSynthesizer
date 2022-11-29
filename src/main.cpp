@@ -5,6 +5,11 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 #include <ESP8266WiFi.h>
+#include <ESPAsyncTCP.h>
+#include <ESPAsyncWebServer.h>
+#include <cpp-split-string/include/split_string.hpp>
+
+AsyncWebServer webCP(80);
 
 int dPins[] = {16,15,10,0,2,14,12,13};
 int WEPin = 10;
@@ -204,9 +209,17 @@ void setup() {
 
     Serial.println("Boot Successful, Ready to play!");
 
+    webCP.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
+        String indexHtml = LittleFS.open("index.html",'r');
+        request->send(200, "text/html", indexHtml);
+    });
+
+    webCP.on("/playVgm", HTTP_POST, [](AsyncWebServerRequest *request) {
+
+    });
+
 }
 
 void loop() {
-    String commend = Serial.readString();
     
 }
