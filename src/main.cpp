@@ -4,10 +4,17 @@
 #include <Wire.h>
 #include <ArduinoJson.h>
 #include <LittleFS.h>
+
+#ifdef ESP32
+#include <WiFi.h>
+#include <AsyncTCP.h>
+#elif defined(ESP8266)
 #include <ESP8266WiFi.h>
 #include <ESPAsyncTCP.h>
+#endif
+
 #include <ESPAsyncWebServer.h>
-#include <cpp-split-string/include/split_string.hpp>
+
 
 AsyncWebServer webCP(80);
 
@@ -39,7 +46,7 @@ enum notes {
     A, AS, B, C, CS, D, DS, E, F, FS, G, GS
 };
 
-float getFreq (notes note, uint8 octave) {
+float getFreq (notes note, uint8_t octave) {
     int keyNum;
 
     if (note < 3)
@@ -116,7 +123,7 @@ void setTone(uint8_t channel, uint16_t toneVal) {
     }
 }
 
-void playNote(uint8_t channel, notes note, uint8 octave , uint16_t dur) {
+void playNote(uint8_t channel, notes note, uint8_t octave , uint16_t dur) {
     float freq = getFreq(note, octave);
     setTone(channel, (int)(Clock / (32.0 * freq)));
     delay(dur); // this is blocking, so we can only play one note at a time
@@ -147,7 +154,7 @@ void setup() {
 
         File configFile = LittleFS.open("config.json","r");
         String configString;
-        for (uint8 i = 0; i < configFile.size(); i++) {
+        for (uint8_t i = 0; i < configFile.size(); i++) {
             configString += (char)configFile.read();
         }
         
@@ -167,7 +174,7 @@ void setup() {
     
     
     if ((int)config["wifi"]["type"] == 0) {
-        boolean startAP = WiFi.softAP((String)config["wifi"]["ssid"],(String)config["wifi"]["pass"]);
+        boolean startAP = WiFi.softAP(config["wifi"]["ssid"],config["wifi"]["pass"]);
         if (startAP == true) {
             Serial.println("Wifi AP boot successful...");
         } 
@@ -177,11 +184,11 @@ void setup() {
         }
     }
     else if ((int)config["wifi"]["type"] == 1) {
-        WiFi.begin((String)config["wifi"]["ssid"],(String)config["wifi"]["pass"]);
+        WiFi.begin((char*)config["wifi"]["ssid"],(char*)config["wifi"]["pass"]);
         if (WiFi.status() != WL_CONNECTED) {
             Serial.println("Wifi connect fail, try to boot AP...");
 
-            boolean startAP = WiFi.softAP((String)config["wifi"]["ssid"],(String)config["wifi"]["pass"]);
+            boolean startAP = WiFi.softAP((char*)config["wifi"]["ssid"],(char*)config["wifi"]["pass"]);
             if (startAP == true) {
                 Serial.println("Wifi AP boot successful...");
             } 
@@ -209,11 +216,20 @@ void setup() {
 
     Serial.println("Boot Successful, Ready to play!");
 
+    /*
+        WebCP Part - Normal
+        We have `Play` and `Setting`
+    */
     webCP.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
-        String indexHtml = LittleFS.open("index.html",'r');
+        String indexHtml = LittleFS.open("index.html","r").readString();
         request->send(200, "text/html", indexHtml);
     });
 
+
+    /*
+        WebCP - API
+        We have `PlayVgm` and `Upload Setting`
+    */
     webCP.on("/playVgm", HTTP_POST, [](AsyncWebServerRequest *request) {
 
     });

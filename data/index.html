@@ -13,16 +13,31 @@
 </head>
 <body>
     <div class="container">
-        <h2>Chiptune Synthesizer Control Panel</h2><br>
-        <div style="display: flex;">
-            <form action="/playVgm" method="post">
-                <label class="input-group-addon col-3">File</label>
-                <div class="col-6">
+        <header class="navbar">
+            <section class="navbar-section">
+                <div class="navbar-brand mr-2 text-bold"><u># Chiptune Synthesizer</u></div>
+                <a href="/" target="_blank" rel="noopener noreferrer" class="btn btn-link">Home</a>
+            </section>
+        </header>
+        <div class="hero bg-gray">
+            <div class="hero-body">
+                <h3>Chiptune Synthesizer Control Panel<sup><span class="label label-rounded label-error">试验机</span></sup></h3>
+                <blockquote>
+                    <p>Another Chiptune Synthesizer by <u>RedElectricity</u></p>
+                </blockquote>
+            </div>
+            
+        </div><br>
+        <form action="/playVgm" method="post">
+            <div class="form-horizontal">
+                <h4 class="text-bold"><u># Play</u></h4>
+                <div class="input-group">
+                    <span class="input-group-addon" for="vgmSelector">File</span>
                     <input id="vgmSelector" type="file" class="form-input">
-                    <button class="btn btn-primary input-group-btn">Play!</button>
-                </div>
-            </form>
-        </div>
+                    <button class="btn btn-primary input-group-btn btn-lg"><i class="icon icon-upload"></i>Play!</button>
+                </div>           
+            </div>
+        </form>
     </div>
 </body>
 </html>

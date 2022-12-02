@@ -1,0 +1,11 @@
+Read String from serial
+    - Split String
+Finish Web Control Panel
+Fit ESP32 & Finish ESP 8266
+Finish VGM Player
+ Some usful repos:
+    - https://github.com/simondotm/vgm-converter
+    - https://github.com/cbmeeks/SoundBoard
+ Spec.
+    - https://vgmrips.net/wiki/VGM_Specification
+    
