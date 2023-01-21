@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+
+    <script>
+        let rawConfig = await fetch("/getConfig")
+
+        if (rawConfig.ok != true) {
+            window.location.reload(true)
+        }
+
+        let config = await rawConfig.json()
+
+    </script>
+
+    <title>Chiptune Synthesizer</title>
+</head>
+<body>
+    <div class="container">
+        <header class="navbar">
+            <section class="navbar-section">
+                <div class="navbar-brand mr-2 text-bold"><u># Chiptune Synthesizer</u></div>
+                <a href="/" target="_blank" rel="noopener noreferrer" class="btn btn-link">Home</a>
+                <a href="/setting" target="_blank" rel="noopener noreferrer" class="btn btn-link">Setting</a>
+            </section>
+        </header>
+        <div class="hero bg-gray">
+            <div class="hero-body">
+                <h3>Chiptune Synthesizer Control Panel<sup><span class="label label-rounded label-error">试验机</span></sup></h3>
+                <blockquote>
+                    <p>Another Chiptune Synthesizer by <u>RedElectricity</u></p>
+                </blockquote>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <span>Now Location</span>
+                      </li>
+                    <li class="breadcrumb-item">
+                      <a href="#">Setting</a>
+                    </li>
+                </ul>
+                <p>Work in Process...</p>
+            </div>
+        </div><br>
+        <form action="/updateSetiing" method="post">
+            <div class="form-horizontal">
+                <h4 class="text-bold"><u># Setting</u></h4>
+                <h5 class="text-bold"><u>## WiFi Setting</u></h5>
+                <div class="input-group">
+                    <span class="input-group-addon" for="WiFiMode">WiFiMode</span>
+                    <select class="form-select" id="WiFiMode">
+                        <option>Choose an option</option>
+                        <option>SoftAP</option>
+                        <option>Connect</option>
+                      </select>
+                </div>
+                <br>
+                <div class="input-group">
+                    <span class="input-group-addon" for="SSID">SSID</span>
+                    <input type="text"id="SSID">
+                </div>
+                <br>
+                <div class="input-group">
+                    <span class="input-group-addon" for="Password">Password</span>
+                    <input type="password"id="Password">
+                </div>
+                <h5 class="text-bold"><u>## MIDI Setting</u></h5>
+                <div class="form-group">
+                    <label class="form-switch">
+                        <input type="checkbox">
+                        <i class="form-icon"></i> Turn on MIDI Setting?
+                      </label>
+                </div>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

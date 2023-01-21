@@ -18,8 +18,8 @@
 
 AsyncWebServer webCP(80);
 
-int dPins[] = {16,15,10,0,2,14,12,13};
-int WEPin = 10;
+int dPins[] = {2,3,10,6,7,0,1,2};
+int WEPin = 13;
 float Clock = 4000000.0;
 
 /*
@@ -36,6 +36,25 @@ float Clock = 4000000.0;
 DynamicJsonDocument config(1024);
 
 Adafruit_SSD1306 display = Adafruit_SSD1306(128, 64, &Wire, -1);
+
+struct VgmHeader
+{
+    uint32_t id = 0;
+    uint32_t EoFOffset = 0;
+    uint32_t Version = 0;
+    uint32_t SN76489Clk = 0;
+    uint32_t _YM2413Clk = 0;
+    uint32_t GD3Offset = 0;
+    uint32_t TotalSamples = 0;
+    uint32_t LoopOffset = 0;
+    uint32_t LoopSample = 0;
+};
+
+enum VgmFileType {
+    Compass,
+    Uncompass,
+    Unknown
+};
 
 enum latchType {
     Tone,
@@ -123,10 +142,9 @@ void setTone(uint8_t channel, uint16_t toneVal) {
     }
 }
 
-void playNote(uint8_t channel, notes note, uint8_t octave , uint16_t dur) {
+void playNote(uint8_t channel, notes note, uint8_t octave) {
     float freq = getFreq(note, octave);
     setTone(channel, (int)(Clock / (32.0 * freq)));
-    delay(dur); // this is blocking, so we can only play one note at a time
 }
  
 void setup() {
@@ -212,7 +230,7 @@ void setup() {
     muteAll();
 
     setVolume(1,15);
-    playNote(1, C, 5, 5000);
+    playNote(1, C, 5);
 
     Serial.println("Boot Successful, Ready to play!");
 
@@ -234,8 +252,55 @@ void setup() {
         
     });
 
+    
+
 }
 
 void loop() {
     
 }
+
+class VgmFile
+{
+private:
+    File vgmFile;
+public:
+    VgmFile(File rawVgm);
+    ~VgmFile();
+    VgmFileType GetCompassType();
+};
+
+VgmFile::VgmFile(File rawVgm)
+{
+    vgmFile = rawVgm;
+}
+
+VgmFile::~VgmFile()
+{
+}
+
+VgmFileType VgmFile::GetCompassType() {
+    struct
+    {
+        byte ID1 = 0;
+        byte ID2 = 0;
+        byte ID3 = 0;
+        byte ID4 = 0;
+    } IDs;
+
+    vgmFile.read((byte*)&IDs,sizeof(IDs));
+
+    if (IDs.ID1 == 0x1f && IDs.ID2 == 0x8b)
+    {
+        return VgmFileType::Compass;
+    }
+    else if (IDs.ID1 == 0x56 && IDs.ID2 == 0x67 && IDs.ID3 == 0x6D )
+    {
+        return VgmFileType::Uncompass;
+    }
+    else
+    {
+        return VgmFileType::Unknown;
+    } 
+}
+
